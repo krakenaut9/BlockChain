@@ -26,6 +26,22 @@ TRANSLATIONS += \
 CONFIG += lrelease
 CONFIG += embed_translations
 
+INCLUDEPATH += $$PWD//cryptopp
+
+    !contains(QMAKE_TARGET.arch, x86_64) {
+        message("x86 build")
+
+    LIBS += -L$$PWD/cryptopp/Win32/Output/Release -lcryptlib
+    }
+    else
+    {
+        message("x86_64 build")
+
+    LIBS += -L$$PWD/cryptopp/x64/Output/Release -lcryptlib
+    }
+
+
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
