@@ -3,9 +3,13 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <blockchain.h>
 
 int main(int argc, char *argv[])
 {
+    Blockchain::Transaction transaction("Hello world");
+    Blockchain::Block block(0, "111", "222");
+    block.addTransaction(transaction);
     QApplication a(argc, argv);
 
     QTranslator translator;
