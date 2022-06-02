@@ -1,9 +1,9 @@
 #include "blockchain.h"
 
 Blockchain::Block::Block(const size_t blockNumber, const QString& prevBlockHash, const QString& address) :
-    m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime()), m_blockNumber(blockNumber)
+    m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime()), m_blockNumber(blockNumber), m_completed(false)
 {
-    qDebug() << "Create block : address = " << m_address << " prevBlockHash = " << m_prevBlockHash;
+    qDebug() << "Create block : number = " << m_blockNumber << "address = " << m_address << " prevBlockHash = " << m_prevBlockHash;
 }
 
 QString Blockchain::Block::getAddress()const
@@ -36,14 +36,53 @@ size_t Blockchain::Block::getBlockNumber()const
     return m_blockNumber;
 }
 
-void Blockchain::Block::addTransaction(const Transaction& transaction)
+bool Blockchain::Block::addTransaction(const Transaction& transaction)
 {
-    m_transactions.push_back(transaction);
+    if(!m_completed)
+    {
+        m_transactions.push_back(transaction);
+        return true;
+    }
+    else
+    {
+        qDebug() << m_blockNumber << " block is full. Can't add a new transaction";
+        return false;
+    }
 }
 
-void Blockchain::Block::addTransaction(Transaction&& transaction)
+bool Blockchain::Block::addTransaction(Transaction&& transaction)
 {
-    m_transactions.push_back(transaction);
+    if(!m_completed)
+    {
+        m_transactions.push_back(transaction);
+        return true;
+    }
+    else
+    {
+        qDebug() << m_blockNumber << " block is full. Can't add a new transaction";
+        return false;
+    }
+}
+
+void Blockchain::Block::calculateBlockHash()
+{
+    qDebug() << "Calculating block hash : \nprevBlockHash = " << m_prevBlockHash;
+    for(size_t i = 0; i < m_transactions.size(); ++i)
+    {
+        qDebug() << i+1 << " transaction information = " <<m_transactions[i].getInformation();
+    }
+}
+
+void Blockchain::Block::complete()
+{
+    m_completed = true;
+    qDebug() << m_blockNumber << " block completed";
+    calculateBlockHash();
+}
+
+const QVector<Blockchain::Transaction>& Blockchain::Block::getTransactions()const
+{
+    return m_transactions;
 }
 
 

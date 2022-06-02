@@ -28,12 +28,15 @@ namespace Blockchain
         QDateTime getTime()const;
         size_t getTransactionsCount()const;
         size_t getBlockNumber()const;
-        void addTransaction(const Transaction& transaction);
-        void addTransaction(Transaction&& transaction);
+        const QVector<Transaction>& getTransactions()const;
+        bool addTransaction(const Transaction& transaction);
+        bool addTransaction(Transaction&& transaction);
         bool isCompleted()const;
+        void complete();
         ~Block() = default;
-    private:
 
+    private:
+        void calculateBlockHash();
 
 
     private:
