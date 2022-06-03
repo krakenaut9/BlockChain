@@ -21,23 +21,34 @@ const QVector<Blockchain::Block>& Blockchain::getBlockChain()const
     return m_blocks;
 }
 
-QString Blockchain::getLastBlockHash()const
+const Blockchain::Block& Blockchain::getLastBlock()const
 {
-    return m_blocks.empty() ? "" : m_blocks.last().getAddress();
+    if(m_blocks.isEmpty())
+    {
+        throw std::runtime_error("Blockchain is empty. Can't get last block");
+    }
+    return m_blocks.last();
 }
 
-Blockchain::Block::Block(const size_t blockNumber, const QString& prevBlockHash, const QString& address) :
+CryptoPP::Integer Blockchain::getLastBlockHash()const
+{
+    return m_blocks.empty() ? 0 : m_blocks.last().getAddress();
+}
+
+Blockchain::Block::Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::Integer& address) :
     m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime()), m_blockNumber(blockNumber), m_completed(false)
 {
-    qDebug() << "Create block : number = " << m_blockNumber << "address = " << m_address << " prevBlockHash = " << m_prevBlockHash;
+    std::stringstream ss;
+    ss << std::hex << m_address;
+    std::cout << "Create block : number = " << m_blockNumber << " address = " << ss.str() << " prevBlockHash = " << m_prevBlockHash.c_str();
 }
 
-QString Blockchain::Block::getAddress()const
+CryptoPP::Integer Blockchain::Block::getAddress()const
 {
     return m_address;
 }
 
-QString Blockchain::Block::getBlockHash()const
+std::string Blockchain::Block::getBlockHash()const
 {
     return m_blockHash;
 }
@@ -92,11 +103,15 @@ bool Blockchain::Block::addTransaction(Transaction&& transaction)
 
 void Blockchain::Block::calculateBlockHash()
 {
-    qDebug() << "Calculating block hash : \nprevBlockHash = " << m_prevBlockHash;
+    QCryptographicHash hash(QCryptographicHash::Sha512);
+    hash.addData(m_prevBlockHash.c_str(), m_prevBlockHash.length());
+    qDebug() << "Calculating block hash : \nprevBlockHash = " << m_prevBlockHash.c_str();
     for(size_t i = 0; i < m_transactions.size(); ++i)
     {
+        hash.addData(m_transactions[i].getInformation().c_str(), m_transactions[i].getInformation().length());
         qDebug() << i+1 << " transaction information = " <<m_transactions[i].getInformation().c_str();
     }
+    m_blockHash = hash.result().toStdString();
 }
 
 void Blockchain::Block::complete()
@@ -117,7 +132,7 @@ Blockchain::Transaction::Transaction(const std::string& information, const Crypt
 {
     qDebug() << "Transaction. Information = " << m_information.c_str();
     m_digitalSignature = Cryptography::SignData(information, privateKey);
-    qDebug() << "Signature = " << m_digitalSignature.c_str();
+    qDebug() << "Signature = " << QByteArray(m_digitalSignature.c_str(), m_digitalSignature.size()).toHex();
 }
 
 std::string Blockchain::Transaction::getSignature()const

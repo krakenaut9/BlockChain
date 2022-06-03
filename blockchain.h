@@ -4,13 +4,14 @@
 #include <QVector>
 #include <QCryptographicHash>
 #include <cryptography.h>
+#include <sstream>
 class Blockchain
 {
 public:
     class Transaction
     {
     public:
-        Transaction(const std::string& information, const CryptoPP::RSA::PrivateKey& provateKey);
+        Transaction(const std::string& information, const CryptoPP::RSA::PrivateKey& privateKey);
         std::string getSignature()const;
         std::string getInformation()const;
         QDateTime getTime()const;
@@ -24,9 +25,9 @@ public:
     class Block
     {
     public :
-        Block(const size_t blockNumber, const QString& prevBlockHash = "", const QString& address = "");
-        QString getAddress()const;
-        QString getBlockHash()const;
+        Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::Integer& address);
+        CryptoPP::Integer getAddress()const;
+        std::string getBlockHash()const;
         QDateTime getTime()const;
         size_t getTransactionsCount()const;
         size_t getBlockNumber()const;
@@ -43,9 +44,9 @@ public:
 
     private:
         QVector<Transaction> m_transactions;
-        QString m_prevBlockHash;
-        QString m_address;
-        QString m_blockHash;
+        std::string m_prevBlockHash;
+        CryptoPP::Integer m_address;
+        std::string m_blockHash;
         QDateTime m_time;
         size_t m_blockNumber;
         bool m_completed;
@@ -55,10 +56,9 @@ public:
     void addBlock(const Block& newBlock);
     void addBlock(Block&& newBlock);
     const QVector<Block>& getBlockChain()const;
-    QString getLastBlockHash()const;
+    const Block& getLastBlock()const;
+    CryptoPP::Integer getLastBlockHash()const;
 
 private:
     QVector<Block> m_blocks;
-
-    //QString SignData(const QString& data, )
 };
