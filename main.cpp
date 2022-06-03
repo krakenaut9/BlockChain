@@ -7,11 +7,6 @@
 
 int main(int argc, char *argv[])
 {
-    Blockchain::Transaction transaction("Hello world");
-    Blockchain::Block block(0, "111", "222");
-    block.addTransaction(transaction);
-    block.addTransaction(Blockchain::Transaction("Second transaction"));
-    block.complete();
     QApplication a(argc, argv);
 
     QTranslator translator;    

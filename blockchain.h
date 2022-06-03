@@ -2,20 +2,22 @@
 
 #include <pch.h>
 #include <QVector>
-
-namespace Blockchain
+#include <QCryptographicHash>
+#include <cryptography.h>
+class Blockchain
 {
+public:
     class Transaction
     {
     public:
-        Transaction(const QString& information);
-        QString getSignature()const;
-        QString getInformation()const;
+        Transaction(const std::string& information, const CryptoPP::RSA::PrivateKey& provateKey);
+        std::string getSignature()const;
+        std::string getInformation()const;
         QDateTime getTime()const;
         ~Transaction() = default;
     private:
-        QString m_information;
-        QString m_digitalSignature;
+        std::string m_information;
+        std::string m_digitalSignature;
         QDateTime m_time;
     };
 
@@ -48,4 +50,15 @@ namespace Blockchain
         size_t m_blockNumber;
         bool m_completed;
     };
-}
+
+    size_t getBlocksCount()const;
+    void addBlock(const Block& newBlock);
+    void addBlock(Block&& newBlock);
+    const QVector<Block>& getBlockChain()const;
+    QString getLastBlockHash()const;
+
+private:
+    QVector<Block> m_blocks;
+
+    //QString SignData(const QString& data, )
+};
