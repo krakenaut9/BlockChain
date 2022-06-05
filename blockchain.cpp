@@ -30,20 +30,20 @@ const Blockchain::Block& Blockchain::getLastBlock()const
     return m_blocks.last();
 }
 
-CryptoPP::Integer Blockchain::getLastBlockHash()const
+CryptoPP::RSA::PublicKey Blockchain::getLastBlockHash()const
 {
-    return m_blocks.empty() ? 0 : m_blocks.last().getAddress();
+    return m_blocks.last().getAddress();
 }
 
-Blockchain::Block::Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::Integer& address) :
+Blockchain::Block::Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::RSA::PublicKey& address) :
     m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime()), m_blockNumber(blockNumber), m_completed(false)
 {
-    std::stringstream ss;
-    ss << std::hex << m_address;
-    std::cout << "Create block : number = " << m_blockNumber << " address = " << ss.str() << " prevBlockHash = " << m_prevBlockHash.c_str();
+//    std::stringstream ss;
+//    ss << std::hex << m_address;
+//    std::cout << "Create block : number = " << m_blockNumber << " address = " << ss.str() << " prevBlockHash = " << m_prevBlockHash.c_str();
 }
 
-CryptoPP::Integer Blockchain::Block::getAddress()const
+CryptoPP::RSA::PublicKey Blockchain::Block::getAddress()const
 {
     return m_address;
 }

@@ -10,12 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     blockchain.cpp \
+    blockchainfile.cpp \
     cryptography.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     blockchain.h \
+    blockchainfile.h \
     cryptography.h \
     mainwindow.h \
     pch.h

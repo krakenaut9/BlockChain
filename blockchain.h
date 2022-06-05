@@ -25,8 +25,8 @@ public:
     class Block
     {
     public :
-        Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::Integer& address);
-        CryptoPP::Integer getAddress()const;
+        Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::RSA::PublicKey& address);
+        CryptoPP::RSA::PublicKey getAddress()const;
         std::string getBlockHash()const;
         QDateTime getTime()const;
         size_t getTransactionsCount()const;
@@ -45,7 +45,7 @@ public:
     private:
         QVector<Transaction> m_transactions;
         std::string m_prevBlockHash;
-        CryptoPP::Integer m_address;
+        CryptoPP::RSA::PublicKey m_address;
         std::string m_blockHash;
         QDateTime m_time;
         size_t m_blockNumber;
@@ -57,7 +57,7 @@ public:
     void addBlock(Block&& newBlock);
     const QVector<Block>& getBlockChain()const;
     const Block& getLastBlock()const;
-    CryptoPP::Integer getLastBlockHash()const;
+    CryptoPP::RSA::PublicKey getLastBlockHash()const;
 
 private:
     QVector<Block> m_blocks;
