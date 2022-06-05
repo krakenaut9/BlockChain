@@ -1,25 +1,71 @@
 #include "blockchainfile.h"
 
+#include <blockchain.h>
+
 bool BlockchainFile::AddBlock(const Blockchain::Block& newBlock)
 {
-//    QFile file(BLOCKCHAIN_FILE_NAME);
-//    file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::ExistingOnly);
-//    QJsonParseError JsonParseError;
-//    QJsonDocument JsonDocument = QJsonDocument::fromJson(file.readAll(), &JsonParseError);
-//    file.close();
-//    QJsonObject RootObject = JsonDocument.object();
-//    if(RootObject.find(userName) != RootObject.constEnd())
-//    {
-//        qDebug() << "This user already exists";
-//        QMessageBox::warning(nullptr, "User exists", "This user already exists");
-//        return false;
-//    }
-//    RootObject.insert(newUserName, userProperties);
-//    JsonDocument.setObject(RootObject); // set to json document
-//    file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
-//    file.write(JsonDocument.toJson());
-//    file.close();
-      return true;
+    QFile file(BLOCKCHAIN_FILE_NAME);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QJsonParseError JsonParseError;
+    QJsonDocument JsonDocument = QJsonDocument::fromJson(file.readAll(), &JsonParseError);
+    file.close();
+    QJsonObject RootObject = JsonDocument.object();
+
+    if(RootObject.find(QString::number(newBlock.getBlockNumber())) != RootObject.constEnd())
+    {
+        qDebug() << "This block already exists";
+        QMessageBox::warning(nullptr, "Block exists", "This block already exists");
+        return false;
+    }
+
+    QJsonObject blockProperties;
+
+    //Block Address
+    std::string hexAddress;
+    BlockchainFile::RSAPublicKeyToHex(newBlock.getAddress(), hexAddress);
+    blockProperties.insert(Blockchain::Block::Properties::address.c_str(),
+                           QString::fromStdString(hexAddress));
+
+
+    //Transactions
+    QJsonObject transactionsObject;
+    for(const auto& transaction : newBlock.getTransactions())
+    {
+        QJsonObject transactionObject;
+        transactionObject.insert(Blockchain::Transaction::Properties::information.c_str(),
+                                 QString::fromStdString(transaction.getInformation()));
+
+        transactionObject.insert(Blockchain::Transaction::Properties::digitalSignature.c_str(),
+                                 QString::fromStdString(transaction.getSignature()));
+
+        transactionObject.insert(Blockchain::Transaction::Properties::time.c_str(),
+                                 transaction.getTime().toString());
+
+        transactionsObject.insert(QString::number(transaction.getNumber()), transactionObject);
+    }
+
+    blockProperties.insert(Blockchain::Block::Properties::transactions.c_str(),
+                           transactionsObject);
+
+    //Previous Block hash
+    blockProperties.insert(Blockchain::Block::Properties::prevBlockAddress.c_str(),
+                           QString::fromStdString(newBlock.getPrevBlockHash()));
+
+    //Creation Time
+    blockProperties.insert(Blockchain::Block::Properties::time.c_str(),
+                           newBlock.getTime().toString());
+
+    //Block hash
+    blockProperties.insert(Blockchain::Block::Properties::hash.c_str(),
+                           QString::fromStdString(newBlock.getBlockHash()));
+
+    RootObject.insert(QString::number(newBlock.getBlockNumber())
+                      , blockProperties);
+    JsonDocument.setObject(RootObject); // set to json document
+    file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
+    file.write(JsonDocument.toJson());
+    file.close();
+    return true;
 }
 
 

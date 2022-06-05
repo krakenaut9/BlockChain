@@ -11,23 +11,45 @@ public:
     class Transaction
     {
     public:
+        struct Properties
+        {
+            static const std::string information;
+            static const std::string digitalSignature;
+            static const std::string time;
+            static const std::string number;
+        };
+    public:
         Transaction(const std::string& information, const CryptoPP::RSA::PrivateKey& privateKey);
         std::string getSignature()const;
         std::string getInformation()const;
         QDateTime getTime()const;
+        size_t getNumber()const;
         ~Transaction() = default;
     private:
         std::string m_information;
         std::string m_digitalSignature;
         QDateTime m_time;
+        size_t m_number;
     };
 
     class Block
     {
+    public:
+        struct Properties
+        {
+            static const std::string number;
+            static const std::string address;
+            static const std::string transactions;
+            static const std::string prevBlockAddress;
+            static const std::string hash;
+            static const std::string time;
+        };
+
     public :
         Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::RSA::PublicKey& address);
         CryptoPP::RSA::PublicKey getAddress()const;
         std::string getBlockHash()const;
+        std::string getPrevBlockHash()const;
         QDateTime getTime()const;
         size_t getTransactionsCount()const;
         size_t getBlockNumber()const;

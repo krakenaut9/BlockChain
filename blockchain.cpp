@@ -1,5 +1,17 @@
 #include "blockchain.h"
 
+const std::string Blockchain::Block::Properties::number = "Number";
+const std::string Blockchain::Block::Properties::address = "Address";
+const std::string Blockchain::Block::Properties::transactions = "Transactions";
+const std::string Blockchain::Block::Properties::prevBlockAddress = "Previous Block Hash";
+const std::string Blockchain::Block::Properties::hash = "Block hash";
+const std::string Blockchain::Block::Properties::time = "Creation Time";
+
+const std::string Blockchain::Transaction::Properties::information = "Information";
+const std::string Blockchain::Transaction::Properties::digitalSignature = "Digital Signature";
+const std::string Blockchain::Transaction::Properties::time = "Time";
+const std::string Blockchain::Transaction::Properties::number = "Number";
+
 size_t Blockchain::getBlocksCount()const
 {
     return m_blocks.size();
@@ -51,6 +63,11 @@ CryptoPP::RSA::PublicKey Blockchain::Block::getAddress()const
 std::string Blockchain::Block::getBlockHash()const
 {
     return m_blockHash;
+}
+
+std::string Blockchain::Block::getPrevBlockHash()const
+{
+    return m_prevBlockHash;
 }
 
 QDateTime Blockchain::Block::getTime()const
@@ -148,4 +165,9 @@ std::string Blockchain::Transaction::getInformation()const
 QDateTime Blockchain::Transaction::getTime()const
 {
     return m_time;
+}
+
+size_t Blockchain::Transaction::getNumber() const
+{
+    return m_number;
 }
