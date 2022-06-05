@@ -37,4 +37,8 @@ namespace BlockchainFile
     void RSAPublicKeyToHex(const CryptoPP::RSA::PublicKey& publicKey, std::string& outHexPublicKey);
 
     void RSAPrivateKeyToHex(const CryptoPP::RSA::PrivateKey& privateKey, std::string& outHexPrivateKey);
+
+    void HexToRSAPublicKey(const std::string& HexPublicKey, CryptoPP::RSA::PublicKey& publicKey);
+
+    void HexToRSAPrivateKey(const std::string& outHexPrivateKey, CryptoPP::RSA::PrivateKey& privateKey);
 }

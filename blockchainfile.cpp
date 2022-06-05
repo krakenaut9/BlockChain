@@ -141,3 +141,25 @@ void BlockchainFile::RSAPrivateKeyToHex(const CryptoPP::RSA::PrivateKey& private
     queue.CopyTo(encoder);
     encoder.MessageEnd();
 }
+
+void BlockchainFile::HexToRSAPublicKey(const std::string& HexPublicKey, CryptoPP::RSA::PublicKey& publicKey)
+{
+    CryptoPP::HexDecoder decoder;
+    CryptoPP::StringSource ss(HexPublicKey, true);
+    ss.CopyTo(decoder);
+    decoder.MessageEnd();
+    CryptoPP::ByteQueue queue;
+    decoder.TransferTo(queue);
+    publicKey.Load(queue);
+}
+
+void BlockchainFile::HexToRSAPrivateKey(const std::string& HexPrivateKey, CryptoPP::RSA::PrivateKey& privateKey)
+{
+    CryptoPP::HexDecoder decoder;
+    CryptoPP::StringSource ss(HexPrivateKey, true);
+    ss.CopyTo(decoder);
+    decoder.MessageEnd();
+    CryptoPP::ByteQueue queue;
+    decoder.TransferTo(queue);
+    privateKey.Load(queue);
+}
