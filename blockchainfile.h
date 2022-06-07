@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <qdebug.h>
 
 namespace BlockchainFile
 {
@@ -41,4 +42,6 @@ namespace BlockchainFile
     void HexToRSAPublicKey(const std::string& HexPublicKey, CryptoPP::RSA::PublicKey& publicKey);
 
     void HexToRSAPrivateKey(const std::string& outHexPrivateKey, CryptoPP::RSA::PrivateKey& privateKey);
+
+    void ReadBlockchainFromFile(Blockchain& blockchain, const char filename[]);
 }

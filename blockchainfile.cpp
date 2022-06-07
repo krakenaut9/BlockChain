@@ -5,7 +5,11 @@
 bool BlockchainFile::AddBlock(const Blockchain::Block& newBlock)
 {
     QFile file(BLOCKCHAIN_FILE_NAME);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "File open failed. Can not add a new block";
+        return false;
+    }
     QJsonParseError JsonParseError;
     QJsonDocument JsonDocument = QJsonDocument::fromJson(file.readAll(), &JsonParseError);
     file.close();
@@ -39,7 +43,7 @@ bool BlockchainFile::AddBlock(const Blockchain::Block& newBlock)
                                  QString::fromStdString(transaction.getSignature()));
 
         transactionObject.insert(Blockchain::Transaction::Properties::time.c_str(),
-                                 transaction.getTime().toString());
+                                 QString::fromStdString(transaction.getTime()));
 
         transactionsObject.insert(QString::number(transaction.getNumber()), transactionObject);
     }
@@ -53,7 +57,7 @@ bool BlockchainFile::AddBlock(const Blockchain::Block& newBlock)
 
     //Creation Time
     blockProperties.insert(Blockchain::Block::Properties::time.c_str(),
-                           newBlock.getTime().toString());
+                           QString::fromStdString(newBlock.getTime()));
 
     //Block hash
     blockProperties.insert(Blockchain::Block::Properties::hash.c_str(),
@@ -208,4 +212,33 @@ void BlockchainFile::HexToRSAPrivateKey(const std::string& HexPrivateKey, Crypto
     CryptoPP::ByteQueue queue;
     decoder.TransferTo(queue);
     privateKey.Load(queue);
+}
+
+void BlockchainFile::ReadBlockchainFromFile(Blockchain& blockchain, const char filename[])
+{
+    QFile file(filename);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::ExistingOnly))
+    {
+        qDebug() << "File open failed for initializing the blockchain : " << filename;
+        file.open(QIODevice::NewOnly | QIODevice::ReadWrite | QIODevice::Text);
+        file.close();
+        return;
+    }
+    QJsonParseError JsonParseError;
+    QJsonDocument JsonDocument = QJsonDocument::fromJson(file.readAll(), &JsonParseError);
+    file.close();
+    QJsonObject RootObject = JsonDocument.object();
+    for(auto it = RootObject.constBegin(); it != RootObject.constEnd(); ++it)
+    {
+        auto blockNumber = it.key().toInt();
+        auto prevBlockHash = it.value().toObject()[Blockchain::Block::Properties::prevBlockAddress.c_str()].toString();
+        auto addressHex = it.value().toObject()[Blockchain::Block::Properties::address.c_str()].toString();
+        CryptoPP::RSA::PublicKey address;
+        HexToRSAPublicKey(addressHex.toStdString(), address);
+        Blockchain::Block block(blockNumber, prevBlockHash.toStdString(), address);
+        block.setTime(it.value().toObject()[Blockchain::Block::Properties::time.c_str()].toString().toStdString());
+        blockchain.addBlock(block);
+        qDebug() << "Read block number = " << blockNumber << " prevhash = " << prevBlockHash << " address " << addressHex;
+    }
+
 }

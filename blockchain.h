@@ -22,13 +22,14 @@ public:
         Transaction(const std::string& information, const CryptoPP::RSA::PrivateKey& privateKey);
         std::string getSignature()const;
         std::string getInformation()const;
-        QDateTime getTime()const;
+        std::string getTime()const;
+        void setTime(const std::string&);
         size_t getNumber()const;
         ~Transaction() = default;
     private:
         std::string m_information;
         std::string m_digitalSignature;
-        QDateTime m_time;
+        std::string m_time;
         size_t m_number;
     };
 
@@ -50,7 +51,8 @@ public:
         CryptoPP::RSA::PublicKey getAddress()const;
         std::string getBlockHash()const;
         std::string getPrevBlockHash()const;
-        QDateTime getTime()const;
+        std::string getTime()const;
+        void setTime(const std::string&);
         size_t getTransactionsCount()const;
         size_t getBlockNumber()const;
         const QVector<Transaction>& getTransactions()const;
@@ -69,12 +71,13 @@ public:
         std::string m_prevBlockHash;
         CryptoPP::RSA::PublicKey m_address;
         std::string m_blockHash;
-        QDateTime m_time;
+        std::string m_time;
         size_t m_blockNumber;
         bool m_completed;
     };
 
     size_t getBlocksCount()const;
+    Block& getBlockById(const size_t blockId);
     void addBlock(const Block& newBlock);
     void addBlock(Block&& newBlock);
     const QVector<Block>& getBlockChain()const;

@@ -1,7 +1,10 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
+#include <cryptography.h>
+#include <blockchain.h>
+#include <blockchainfile.h>
+#include <QFileDialog>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -14,8 +17,11 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+public slots:
+    void newBlockClicked();
+    void nextBlockClicked();
+    void prevBlockClicked();
+    void gotoClicked();
 private:
     Ui::MainWindow *ui;
 };
-#endif // MAINWINDOW_H

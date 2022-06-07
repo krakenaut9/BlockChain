@@ -33,6 +33,11 @@ const QVector<Blockchain::Block>& Blockchain::getBlockChain()const
     return m_blocks;
 }
 
+Blockchain::Block& Blockchain::getBlockById(const size_t blockId)
+{
+    return m_blocks[blockId];
+}
+
 const Blockchain::Block& Blockchain::getLastBlock()const
 {
     if(m_blocks.isEmpty())
@@ -48,11 +53,11 @@ CryptoPP::RSA::PublicKey Blockchain::getLastBlockHash()const
 }
 
 Blockchain::Block::Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::RSA::PublicKey& address) :
-    m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime()), m_blockNumber(blockNumber), m_completed(false)
+    m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss").toStdString()), m_blockNumber(blockNumber), m_completed(false)
 {
-//    std::stringstream ss;
-//    ss << std::hex << m_address;
-//    std::cout << "Create block : number = " << m_blockNumber << " address = " << ss.str() << " prevBlockHash = " << m_prevBlockHash.c_str();
+    QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
+    hasher->addData(m_prevBlockHash.c_str(), m_prevBlockHash.length());
+    m_blockHash = hasher->result().toHex().toStdString();
 }
 
 CryptoPP::RSA::PublicKey Blockchain::Block::getAddress()const
@@ -70,9 +75,14 @@ std::string Blockchain::Block::getPrevBlockHash()const
     return m_prevBlockHash;
 }
 
-QDateTime Blockchain::Block::getTime()const
+std::string Blockchain::Block::getTime()const
 {
     return m_time;
+}
+
+void Blockchain::Block::setTime(const std::string& newTime)
+{
+    m_time = newTime;
 }
 
 bool Blockchain::Block::isCompleted()const
@@ -95,6 +105,11 @@ bool Blockchain::Block::addTransaction(const Transaction& transaction)
     if(!m_completed)
     {
         m_transactions.push_back(transaction);
+        QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
+        hasher->addData(m_blockHash.c_str(), m_blockHash.length());
+        hasher->addData(transaction.getInformation().c_str(), transaction.getInformation().length());
+
+        m_blockHash = hasher->result().toHex().toStdString();
         return true;
     }
     else
@@ -145,7 +160,7 @@ const QVector<Blockchain::Transaction>& Blockchain::Block::getTransactions()cons
 
 
 Blockchain::Transaction::Transaction(const std::string& information, const CryptoPP::RSA::PrivateKey& privateKey) :
-    m_information(information), m_time(QDateTime::currentDateTime())
+    m_information(information), m_time(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss").toStdString())
 {
     qDebug() << "Transaction. Information = " << m_information.c_str();
     m_digitalSignature = Cryptography::SignData(information, privateKey);
@@ -162,7 +177,7 @@ std::string Blockchain::Transaction::getInformation()const
     return m_information;
 }
 
-QDateTime Blockchain::Transaction::getTime()const
+std::string Blockchain::Transaction::getTime()const
 {
     return m_time;
 }
@@ -170,4 +185,9 @@ QDateTime Blockchain::Transaction::getTime()const
 size_t Blockchain::Transaction::getNumber() const
 {
     return m_number;
+}
+
+void Blockchain::Transaction::setTime(const std::string& newTime)
+{
+    m_time = newTime;
 }
