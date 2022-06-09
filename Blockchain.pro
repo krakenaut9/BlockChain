@@ -13,17 +13,20 @@ SOURCES += \
     blockchainfile.cpp \
     cryptography.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    transactionswindow.cpp
 
 HEADERS += \
     blockchain.h \
     blockchainfile.h \
     cryptography.h \
     mainwindow.h \
-    pch.h
+    pch.h \
+    transactionswindow.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    transactionswindow.ui
 
 TRANSLATIONS += \
     Blockchain_ru_RU.ts

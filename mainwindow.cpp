@@ -4,6 +4,43 @@
 Blockchain g_blockchain;
 
 
+
+namespace
+{
+    static std::string messageToCheck = "Dima Maslo";
+    bool VerifyRSAKeyPair(
+            const CryptoPP::RSA::PublicKey& publicKey,
+            const CryptoPP::RSA::PrivateKey& privateKey,
+            const Blockchain::Block& block
+            )
+    {
+        auto signature = Cryptography::SignData(
+                block.getTransactions()[0].getInformation(),
+                privateKey
+                );
+
+        try
+        {
+            Cryptography::CheckSignature(
+                    block.getTransactions()[0].getInformation(),
+                    signature,
+                    publicKey);
+        }
+        catch (const std::exception& ex)
+        {
+            qDebug() << ex.what();
+            return false;
+        }
+        return true;
+    }
+
+    void ManageBlockTransactions(Blockchain::Block& block)
+    {
+        TransactionsWindow tw(&block);
+        tw.exec();
+    }
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -14,7 +51,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->nextBlockPushButton, &QPushButton::clicked, this, &MainWindow::nextBlockClicked);
     connect(ui->prevBlockPushButton, &QPushButton::clicked, this, &MainWindow::prevBlockClicked);
     connect(ui->gotoPushButton, &QPushButton::clicked, this, &MainWindow::gotoClicked);
-
+    connect(ui->authorizeBlockPushButton1, &QPushButton::clicked, this, &MainWindow::activate1);
+    connect(ui->authorizeBlockPushButton2, &QPushButton::clicked, this, &MainWindow::activate2);
+    connect(ui->authorizeBlockPushButton3, &QPushButton::clicked, this, &MainWindow::activate3);
+    connect(ui->transactionsPushButton1, &QPushButton::clicked, this, &MainWindow::showTransactions1);
+    connect(ui->transactionsPushButton2, &QPushButton::clicked, this, &MainWindow::showTransactions2);
+    connect(ui->transactionsPushButton3, &QPushButton::clicked, this, &MainWindow::showTransactions3);
     ui->addressLineEdit1->setReadOnly(true);
     ui->addressLineEdit2->setReadOnly(true);
     ui->addressLineEdit3->setReadOnly(true);
@@ -88,7 +130,7 @@ void MainWindow::newBlockClicked()
     qDebug() << "Add new block";
     auto keys = Cryptography::GenerateRSAKeyPair();
 
-    auto privateKeyPath = QFileDialog::getSaveFileName(this, "Save private key", QDir::currentPath());
+    auto privateKeyPath = QFileDialog::getSaveFileName(this, "Save private key", QDir::currentPath() + '/' + QString::number(g_blockchain.getBlocksCount()) + "_blockPrivateKey");
     if(privateKeyPath.isEmpty())
     {
         qDebug() << "Empty key path. New block is not added";
@@ -108,7 +150,7 @@ void MainWindow::newBlockClicked()
     }
     Blockchain::Block newBlock(
                 g_blockchain.getBlocksCount(),
-                hexPublicKey,
+                g_blockchain.getBlocksCount() == 0 ? "" : g_blockchain.getLastBlock().getBlockHash(),
                 keys.first
                 );
 
@@ -183,12 +225,32 @@ void MainWindow::nextBlockClicked()
     ui->dateLineEdit1->setText(ui->dateLineEdit2->text());
     ui->hashLineEdit1->setText(ui->hashLineEdit2->text());
     ui->numberLineEdit1->setText(ui->numberLineEdit2->text());
+    if(g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton1->isEnabled())
+    {
+        ui->authorizeBlockPushButton1->setDisabled(true);
+        ui->authorizeBlockPushButton1->setText("Authorized");
+    }
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton1->isEnabled())
+    {
+        ui->authorizeBlockPushButton1->setDisabled(false);
+        ui->authorizeBlockPushButton1->setText("Authorize");
+    }
 
     //move 3 to 2
     ui->addressLineEdit2->setText(ui->addressLineEdit3->text());
     ui->dateLineEdit2->setText(ui->dateLineEdit3->text());
     ui->hashLineEdit2->setText(ui->hashLineEdit3->text());
     ui->numberLineEdit2->setText(ui->numberLineEdit3->text());
+    if(g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton2->isEnabled())
+    {
+        ui->authorizeBlockPushButton2->setDisabled(true);
+        ui->authorizeBlockPushButton2->setText("Authorized");
+    }
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton2->isEnabled())
+    {
+        ui->authorizeBlockPushButton2->setDisabled(false);
+        ui->authorizeBlockPushButton2->setText("Authorize");
+    }
 
     //init 3
 
@@ -204,6 +266,16 @@ void MainWindow::nextBlockClicked()
     ui->hashLineEdit3->setText(QString::fromStdString(blockRef.getBlockHash()));
 
     ui->numberLineEdit3->setText(QString::number(blockRef.getBlockNumber()));
+    if(g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton3->isEnabled())
+    {
+        ui->authorizeBlockPushButton3->setDisabled(true);
+        ui->authorizeBlockPushButton3->setText("Authorized");
+    }
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton3->isEnabled())
+    {
+        ui->authorizeBlockPushButton3->setDisabled(false);
+        ui->authorizeBlockPushButton3->setText("Authorize");
+    }
 }
 
 void MainWindow::prevBlockClicked()
@@ -220,19 +292,39 @@ void MainWindow::prevBlockClicked()
         ui->nextBlockPushButton->setEnabled(true);
     }
 
-    //move 2 to 1
+    //move 2 to 3
     ui->addressLineEdit3->setText(ui->addressLineEdit2->text());
     ui->dateLineEdit3->setText(ui->dateLineEdit2->text());
     ui->hashLineEdit3->setText(ui->hashLineEdit2->text());
     ui->numberLineEdit3->setText(ui->numberLineEdit2->text());
+    if(g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton3->isEnabled())
+    {
+        ui->authorizeBlockPushButton3->setDisabled(true);
+        ui->authorizeBlockPushButton3->setText("Authorized");
+    }
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton3->isEnabled())
+    {
+        ui->authorizeBlockPushButton3->setDisabled(false);
+        ui->authorizeBlockPushButton3->setText("Authorize");
+    }
 
-    //move 3 to 2
+    //move 1 to 2
     ui->addressLineEdit2->setText(ui->addressLineEdit1->text());
     ui->dateLineEdit2->setText(ui->dateLineEdit1->text());
     ui->hashLineEdit2->setText(ui->hashLineEdit1->text());
     ui->numberLineEdit2->setText(ui->numberLineEdit1->text());
+    if(g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton2->isEnabled())
+    {
+        ui->authorizeBlockPushButton2->setDisabled(true);
+        ui->authorizeBlockPushButton2->setText("Authorized");
+    }
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton2->isEnabled())
+    {
+        ui->authorizeBlockPushButton2->setDisabled(false);
+        ui->authorizeBlockPushButton2->setText("Authorize");
+    }
 
-    //init 3
+    //init 1
 
     Blockchain::Block blockRef = g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong() - 1);
 
@@ -246,6 +338,17 @@ void MainWindow::prevBlockClicked()
     ui->hashLineEdit1->setText(QString::fromStdString(blockRef.getBlockHash()));
 
     ui->numberLineEdit1->setText(QString::number(blockRef.getBlockNumber()));
+
+    if(g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton1->isEnabled())
+    {
+        ui->authorizeBlockPushButton1->setDisabled(true);
+        ui->authorizeBlockPushButton1->setText("Authorized");
+    }
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton1->isEnabled())
+    {
+        ui->authorizeBlockPushButton1->setDisabled(false);
+        ui->authorizeBlockPushButton1->setText("Authorize");
+    }
 }
 
 void MainWindow::gotoClicked()
@@ -297,7 +400,125 @@ void MainWindow::gotoClicked()
         qDebug() << "Requested block is on the left";
         this->prevBlockClicked();
 
-        thirdFieldNumber = ui->numberLineEdit1->text().toULongLong();
+        //thirdFieldNumber = ui->numberLineEdit1->text().toULongLong();
     }
     ui->gotoLineEdit->clear();
+}
+
+void MainWindow::activate1()
+{
+    if(ui->numberLineEdit1->text().isEmpty())
+    {
+        return;
+    }
+    qDebug() << "Try to activate 1";
+    CryptoPP::RSA::PrivateKey privateKey;
+
+    auto privateKeyPath = QFileDialog::getOpenFileName(this, "Open private key", QDir::currentPath());
+
+    BlockchainFile::LoadHexPrivateKey(privateKeyPath.toStdString(), privateKey);
+
+    size_t blockNumber = ui->numberLineEdit1->text().toULongLong();
+
+    CryptoPP::RSA::PublicKey publicKey;
+    BlockchainFile::HexToRSAPublicKey(ui->addressLineEdit1->text().toStdString(), publicKey);
+    if(::VerifyRSAKeyPair(publicKey, privateKey, g_blockchain.getBlockById(blockNumber)))
+    {
+        qDebug() << "Valid key pair. Block " << blockNumber << " successfully activated";
+        g_blockchain.getBlockById(blockNumber).authorize();
+        ui->authorizeBlockPushButton1->setDisabled(true);
+        ui->authorizeBlockPushButton1->setText("Authorized");
+    }
+    else
+    {
+        qDebug() <<"Authorization for block " << blockNumber << " failed";
+        QMessageBox::warning(this, "Incorrect key", "This key is not correct. Access denied");
+        return;
+    }
+}
+
+void MainWindow::activate2()
+{
+    if(ui->numberLineEdit2->text().isEmpty())
+    {
+        return;
+    }
+    qDebug() << "Try to activate 2";
+    CryptoPP::RSA::PrivateKey privateKey;
+
+    auto privateKeyPath = QFileDialog::getOpenFileName(this, "Open private key", QDir::currentPath());
+
+    BlockchainFile::LoadHexPrivateKey(privateKeyPath.toStdString(), privateKey);
+
+    size_t blockNumber = ui->numberLineEdit2->text().toULongLong();
+
+    CryptoPP::RSA::PublicKey publicKey;
+    BlockchainFile::HexToRSAPublicKey(ui->addressLineEdit2->text().toStdString(), publicKey);
+    if(::VerifyRSAKeyPair(publicKey, privateKey, g_blockchain.getBlockById(blockNumber)))
+    {
+        qDebug() << "Valid key pair. Block " << blockNumber << " successfully activated";
+        g_blockchain.getBlockById(blockNumber).authorize();
+        ui->authorizeBlockPushButton2->setDisabled(true);
+        ui->authorizeBlockPushButton2->setText("Authorized");
+    }
+    else
+    {
+        qDebug() <<"Authorization for block " << blockNumber << " failed";
+        QMessageBox::warning(this, "Incorrect key", "This key is not correct. Access denied");
+        return;
+    }
+}
+
+void MainWindow::activate3()
+{
+    if(ui->numberLineEdit3->text().isEmpty())
+    {
+        return;
+    }
+    qDebug() << "Try to activate 3";
+    CryptoPP::RSA::PrivateKey privateKey;
+
+    auto privateKeyPath = QFileDialog::getOpenFileName(this, "Open private key", QDir::currentPath());
+
+    BlockchainFile::LoadHexPrivateKey(privateKeyPath.toStdString(), privateKey);
+    CryptoPP::AutoSeededRandomPool rng;
+    privateKey.Validate(rng, 3);
+    size_t blockNumber = ui->numberLineEdit3->text().toULongLong();
+
+    CryptoPP::RSA::PublicKey publicKey;
+    BlockchainFile::HexToRSAPublicKey(ui->addressLineEdit3->text().toStdString(), publicKey);
+    if(::VerifyRSAKeyPair(publicKey, privateKey, g_blockchain.getBlockById(blockNumber)))
+    {
+        qDebug() << "Valid key pair. Block " << blockNumber << " successfully activated";
+        g_blockchain.getBlockById(blockNumber).authorize();
+        ui->authorizeBlockPushButton3->setDisabled(true);
+        ui->authorizeBlockPushButton3->setText("Authorized");
+    }
+    else
+    {
+        qDebug() <<"Authorization for block " << blockNumber << " failed";
+        QMessageBox::warning(this, "Incorrect key", "This key is not correct. Access denied");
+        return;
+    }
+}
+
+void MainWindow::showTransactions1()
+{
+    qDebug () << "Show transactions 1";
+    auto blockNumber = ui->numberLineEdit1->text().toULongLong();
+    ManageBlockTransactions(g_blockchain.getBlockById(blockNumber));
+}
+
+void MainWindow::showTransactions2()
+{
+    qDebug () << "Show transactions 2";
+    auto blockNumber = ui->numberLineEdit2->text().toULongLong();
+    ManageBlockTransactions(g_blockchain.getBlockById(blockNumber));
+}
+
+void MainWindow::showTransactions3()
+{
+    qDebug () << "Show transactions 3";
+    auto blockNumber = ui->numberLineEdit3->text().toULongLong();
+    ManageBlockTransactions(g_blockchain.getBlockById(blockNumber));
 }

@@ -5,6 +5,7 @@
 #include <blockchain.h>
 #include <blockchainfile.h>
 #include <QFileDialog>
+#include <transactionswindow.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,6 +23,12 @@ public slots:
     void nextBlockClicked();
     void prevBlockClicked();
     void gotoClicked();
+    void activate1();
+    void activate2();
+    void activate3();
+    void showTransactions1();
+    void showTransactions2();
+    void showTransactions3();
 private:
     Ui::MainWindow *ui;
 };
