@@ -53,7 +53,7 @@ CryptoPP::RSA::PublicKey Blockchain::getLastBlockHash()const
 }
 
 Blockchain::Block::Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::RSA::PublicKey& address) :
-    m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss").toStdString()), m_blockNumber(blockNumber), m_completed(false)
+    m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss").toStdString()), m_blockNumber(blockNumber), m_authorized(false)
 {
     QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
     hasher->addData(m_prevBlockHash.c_str(), m_prevBlockHash.length());
@@ -85,9 +85,9 @@ void Blockchain::Block::setTime(const std::string& newTime)
     m_time = newTime;
 }
 
-bool Blockchain::Block::isCompleted()const
+bool Blockchain::Block::isAuthorized()const
 {
-    return m_completed;
+    return m_authorized;
 }
 
 size_t Blockchain::Block::getTransactionsCount()const
@@ -102,9 +102,11 @@ size_t Blockchain::Block::getBlockNumber()const
 
 bool Blockchain::Block::addTransaction(const Transaction& transaction)
 {
-    if(!m_completed)
+    if(!m_authorized)
     {
+
         m_transactions.push_back(transaction);
+        m_transactions.last().setNumber(m_transactions.size() - 1);
         QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
         hasher->addData(m_blockHash.c_str(), m_blockHash.length());
         hasher->addData(transaction.getInformation().c_str(), transaction.getInformation().length());
@@ -121,9 +123,15 @@ bool Blockchain::Block::addTransaction(const Transaction& transaction)
 
 bool Blockchain::Block::addTransaction(Transaction&& transaction)
 {
-    if(!m_completed)
+    if(!m_authorized)
     {
         m_transactions.push_back(transaction);
+        m_transactions.last().setNumber(m_transactions.size() - 1);
+        QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
+        hasher->addData(m_blockHash.c_str(), m_blockHash.length());
+        hasher->addData(transaction.getInformation().c_str(), transaction.getInformation().length());
+
+        m_blockHash = hasher->result().toHex().toStdString();
         return true;
     }
     else
@@ -146,11 +154,11 @@ void Blockchain::Block::calculateBlockHash()
     m_blockHash = hash.result().toStdString();
 }
 
-void Blockchain::Block::complete()
+void Blockchain::Block::authorize()
 {
-    m_completed = true;
-    qDebug() << m_blockNumber << " block completed";
-    calculateBlockHash();
+    m_authorized = true;
+    qDebug() << m_blockNumber << " block authorized";
+    //calculateBlockHash();
 }
 
 const QVector<Blockchain::Transaction>& Blockchain::Block::getTransactions()const
@@ -165,6 +173,12 @@ Blockchain::Transaction::Transaction(const std::string& information, const Crypt
     qDebug() << "Transaction. Information = " << m_information.c_str();
     m_digitalSignature = Cryptography::SignData(information, privateKey);
     qDebug() << "Signature = " << QByteArray(m_digitalSignature.c_str(), m_digitalSignature.size()).toHex();
+}
+
+Blockchain::Transaction::Transaction(const std::string& information, const std::string& signature, const std::string& time, const size_t number):
+    m_information(information), m_digitalSignature(signature), m_time(time), m_number(number)
+{
+    std::cout << "Read transaction : \nInformation : " << m_information << "\nsignature : " << m_digitalSignature << "\nnumber : " << m_number << "\n";
 }
 
 std::string Blockchain::Transaction::getSignature()const
@@ -190,4 +204,9 @@ size_t Blockchain::Transaction::getNumber() const
 void Blockchain::Transaction::setTime(const std::string& newTime)
 {
     m_time = newTime;
+}
+
+void Blockchain::Transaction::setNumber(const size_t number)
+{
+    m_number = number;
 }

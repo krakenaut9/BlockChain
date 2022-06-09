@@ -230,13 +230,24 @@ void BlockchainFile::ReadBlockchainFromFile(Blockchain& blockchain, const char f
     QJsonObject RootObject = JsonDocument.object();
     for(auto it = RootObject.constBegin(); it != RootObject.constEnd(); ++it)
     {
-        auto blockNumber = it.key().toInt();
+        auto blockNumber = it.key().toUInt();
         auto prevBlockHash = it.value().toObject()[Blockchain::Block::Properties::prevBlockAddress.c_str()].toString();
         auto addressHex = it.value().toObject()[Blockchain::Block::Properties::address.c_str()].toString();
         CryptoPP::RSA::PublicKey address;
         HexToRSAPublicKey(addressHex.toStdString(), address);
         Blockchain::Block block(blockNumber, prevBlockHash.toStdString(), address);
         block.setTime(it.value().toObject()[Blockchain::Block::Properties::time.c_str()].toString().toStdString());
+
+        auto transactionsObject = it.value().toObject()[Blockchain::Block::Properties::transactions.c_str()].toObject();
+        for(auto transactionsIt = transactionsObject.constBegin(); transactionsIt != transactionsObject.constEnd(); ++transactionsIt)
+        {
+            auto information = transactionsIt.value().toObject()[Blockchain::Transaction::Properties::information.c_str()].toString().toStdString();
+            auto digitalSignature = transactionsIt.value().toObject()[Blockchain::Transaction::Properties::digitalSignature.c_str()].toString().toStdString();
+            auto time = transactionsIt.value().toObject()[Blockchain::Transaction::Properties::time.c_str()].toString().toStdString();
+            auto number = transactionsIt.key().toUInt();
+            Blockchain::Transaction transaction(information, digitalSignature, time, number);
+            block.addTransaction(transaction);
+        }
         blockchain.addBlock(block);
         qDebug() << "Read block number = " << blockNumber << " prevhash = " << prevBlockHash << " address " << addressHex;
     }

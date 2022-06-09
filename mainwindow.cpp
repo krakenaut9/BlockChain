@@ -119,6 +119,49 @@ void MainWindow::newBlockClicked()
     BlockchainFile::SaveHexPrivateKey(privateKeyPath.toStdString() + ".key", keys.second);
 
     BlockchainFile::AddBlock(newBlock);
+
+    if(ui->numberLineEdit3->text().isEmpty())
+    {
+        std::string hexAddress;
+        BlockchainFile::RSAPublicKeyToHex(newBlock.getAddress(), hexAddress);
+        if(ui->numberLineEdit2->text().isEmpty())
+        {
+            if(ui->numberLineEdit1->text().isEmpty())
+            {
+                ui->addressLineEdit1->setText(QString::fromStdString(hexAddress));
+
+                ui->dateLineEdit1->setText(QString::fromStdString(newBlock.getTime()));
+
+                ui->hashLineEdit1->setText(QString::fromStdString(newBlock.getBlockHash()));
+
+                ui->numberLineEdit1->setText(QString::number(newBlock.getBlockNumber()));
+                return;
+            }
+
+            ui->addressLineEdit2->setText(QString::fromStdString(hexAddress));
+
+            ui->dateLineEdit2->setText(QString::fromStdString(newBlock.getTime()));
+
+            ui->hashLineEdit2->setText(QString::fromStdString(newBlock.getBlockHash()));
+
+            ui->numberLineEdit2->setText(QString::number(newBlock.getBlockNumber()));
+            return;
+        }
+
+        ui->addressLineEdit3->setText(QString::fromStdString(hexAddress));
+
+        ui->dateLineEdit3->setText(QString::fromStdString(newBlock.getTime()));
+
+        ui->hashLineEdit3->setText(QString::fromStdString(newBlock.getBlockHash()));
+
+        ui->numberLineEdit3->setText(QString::number(newBlock.getBlockNumber()));
+        return;
+    }
+
+    if(g_blockchain.getBlocksCount() > 3)
+    {
+        ui->nextBlockPushButton->setEnabled(true);
+    }
 }
 
 void MainWindow::nextBlockClicked()

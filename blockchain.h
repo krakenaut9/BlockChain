@@ -20,10 +20,12 @@ public:
         };
     public:
         Transaction(const std::string& information, const CryptoPP::RSA::PrivateKey& privateKey);
+        Transaction(const std::string& information, const std::string& signature, const std::string& date, const size_t number);
         std::string getSignature()const;
         std::string getInformation()const;
         std::string getTime()const;
         void setTime(const std::string&);
+        void setNumber(const size_t number);
         size_t getNumber()const;
         ~Transaction() = default;
     private:
@@ -58,8 +60,8 @@ public:
         const QVector<Transaction>& getTransactions()const;
         bool addTransaction(const Transaction& transaction);
         bool addTransaction(Transaction&& transaction);
-        bool isCompleted()const;
-        void complete();
+        bool isAuthorized()const;
+        void authorize();
         ~Block() = default;
 
     private:
@@ -73,7 +75,7 @@ public:
         std::string m_blockHash;
         std::string m_time;
         size_t m_blockNumber;
-        bool m_completed;
+        bool m_authorized;
     };
 
     size_t getBlocksCount()const;
