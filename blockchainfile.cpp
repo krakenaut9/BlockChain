@@ -86,8 +86,6 @@ bool BlockchainFile::AddTransaction(const size_t blockNumber, const Blockchain::
     file.close();
     QJsonObject RootObject = JsonDocument.object();
 
-    auto blockIt = RootObject.find(QString::number(blockNumber));
-
     QJsonObject transactionObject;
     transactionObject.insert(Blockchain::Transaction::Properties::information.c_str(),
                              QString::fromStdString(transaction.getInformation()));
@@ -99,11 +97,13 @@ bool BlockchainFile::AddTransaction(const size_t blockNumber, const Blockchain::
                              QString::fromStdString(transaction.getTime()));
 
 
-    QJsonValueRef valueRef = blockIt.value();
-    QJsonObject blockObject = valueRef.toObject();
+    QJsonObject blockObject = RootObject[QString::number(blockNumber)].toObject();
+    RootObject.remove(QString::number(blockNumber));
     QJsonObject transactionsObject = blockObject[Blockchain::Block::Properties::transactions.c_str()].toObject();
+    blockObject.remove(Blockchain::Block::Properties::transactions.c_str());
     transactionsObject.insert(QString::number(transaction.getNumber()), transactionObject);
-    valueRef = transactionsObject;
+    blockObject.insert(Blockchain::Block::Properties::transactions.c_str(), transactionsObject);
+    RootObject.insert(QString::number(blockNumber), blockObject);
     JsonDocument.setObject(RootObject); // set to json document
     file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
     file.write(JsonDocument.toJson());
@@ -266,6 +266,7 @@ void BlockchainFile::ReadBlockchainFromFile(Blockchain& blockchain, const char f
     QJsonParseError JsonParseError;
     QJsonDocument JsonDocument = QJsonDocument::fromJson(file.readAll(), &JsonParseError);
     file.close();
+    qDebug() << "Started reading blocks";
     QJsonObject RootObject = JsonDocument.object();
     for(auto it = RootObject.constBegin(); it != RootObject.constEnd(); ++it)
     {
@@ -277,6 +278,7 @@ void BlockchainFile::ReadBlockchainFromFile(Blockchain& blockchain, const char f
         Blockchain::Block block(blockNumber, prevBlockHash.toStdString(), address);
         block.setTime(it.value().toObject()[Blockchain::Block::Properties::time.c_str()].toString().toStdString());
 
+        qDebug() << "Started reading transactions";
         auto transactionsObject = it.value().toObject()[Blockchain::Block::Properties::transactions.c_str()].toObject();
         for(auto transactionsIt = transactionsObject.constBegin(); transactionsIt != transactionsObject.constEnd(); ++transactionsIt)
         {

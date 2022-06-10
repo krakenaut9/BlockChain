@@ -67,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->addTransactionPushButton2, &QPushButton::clicked, this, &MainWindow::addTransaction2);
     connect(ui->addTransactionPushButton3, &QPushButton::clicked, this, &MainWindow::addTransaction3);
 
+    connect(ui->aboutAuthorPushButton, &QPushButton::clicked, this, &MainWindow::aboutAuthor);
+
     ui->addressLineEdit1->setReadOnly(true);
     ui->addressLineEdit2->setReadOnly(true);
     ui->addressLineEdit3->setReadOnly(true);
@@ -688,4 +690,10 @@ void MainWindow::addTransaction3()
         ui->hashLineEdit3->setCursorPosition(0);
         BlockchainFile::AddTransaction(blockNumber, newTransaction);
     }
+}
+
+void MainWindow::aboutAuthor()
+{
+    qDebug() << "About author";
+    QMessageBox::information(this, "About author", "This program was developed by Dmytro Maslo\nGroup 125-19-2");
 }

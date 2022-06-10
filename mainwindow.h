@@ -33,6 +33,7 @@ public slots:
     void addTransaction1();
     void addTransaction2();
     void addTransaction3();
+    void aboutAuthor();
 private:
     Ui::MainWindow *ui;
 };
