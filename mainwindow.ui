@@ -57,11 +57,22 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QPushButton" name="authorizeBlockPushButton1">
-          <property name="text">
-           <string>Authorize</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="authorizeBlockPushButton1">
+            <property name="text">
+             <string>Authorize</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="addTransactionPushButton1">
+            <property name="text">
+             <string>Add transaction</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <layout class="QFormLayout" name="formLayout_3">
@@ -119,11 +130,22 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QPushButton" name="authorizeBlockPushButton2">
-          <property name="text">
-           <string>Authorize</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QPushButton" name="authorizeBlockPushButton2">
+            <property name="text">
+             <string>Authorize</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="addTransactionPushButton2">
+            <property name="text">
+             <string>Add transaction</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <layout class="QFormLayout" name="formLayout_4">
@@ -181,11 +203,22 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QPushButton" name="authorizeBlockPushButton3">
-          <property name="text">
-           <string>Authorize</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QPushButton" name="authorizeBlockPushButton3">
+            <property name="text">
+             <string>Authorize</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="addTransactionPushButton3">
+            <property name="text">
+             <string>Add transaction</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
          <layout class="QFormLayout" name="formLayout_2">

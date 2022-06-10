@@ -73,6 +73,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->numberLineEdit2->setReadOnly(true);
     ui->numberLineEdit3->setReadOnly(true);
 
+    ui->addTransactionPushButton1->setDisabled(true);
+    ui->addTransactionPushButton2->setDisabled(true);
+    ui->addTransactionPushButton3->setDisabled(true);
+
     ui->prevBlockPushButton->setDisabled(true);
     if(g_blockchain.getBlocksCount() <= 3)
     {
@@ -134,7 +138,7 @@ void MainWindow::newBlockClicked()
     if(privateKeyPath.isEmpty())
     {
         qDebug() << "Empty key path. New block is not added";
-        QMessageBox::warning(this, "Private key save failed", "You did not save a private key.\n So new block is not added");
+        QMessageBox::warning(this, "Private key save failed", "You did not save a private key.\nNew block was not added");
         return;
     }
     Blockchain::Transaction newUserTransaction("New user", keys.second);
@@ -225,14 +229,16 @@ void MainWindow::nextBlockClicked()
     ui->dateLineEdit1->setText(ui->dateLineEdit2->text());
     ui->hashLineEdit1->setText(ui->hashLineEdit2->text());
     ui->numberLineEdit1->setText(ui->numberLineEdit2->text());
-    if(g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton1->isEnabled())
+    if(g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton1->setDisabled(true);
+        ui->addTransactionPushButton1->setEnabled(true);
         ui->authorizeBlockPushButton1->setText("Authorized");
     }
-    else if(!g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton1->isEnabled())
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton1->setDisabled(false);
+        ui->addTransactionPushButton1->setEnabled(false);
         ui->authorizeBlockPushButton1->setText("Authorize");
     }
 
@@ -241,14 +247,16 @@ void MainWindow::nextBlockClicked()
     ui->dateLineEdit2->setText(ui->dateLineEdit3->text());
     ui->hashLineEdit2->setText(ui->hashLineEdit3->text());
     ui->numberLineEdit2->setText(ui->numberLineEdit3->text());
-    if(g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton2->isEnabled())
+    if(g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton2->setDisabled(true);
+        ui->addTransactionPushButton2->setEnabled(true);
         ui->authorizeBlockPushButton2->setText("Authorized");
     }
-    else if(!g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton2->isEnabled())
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton2->setDisabled(false);
+        ui->addTransactionPushButton2->setEnabled(false);
         ui->authorizeBlockPushButton2->setText("Authorize");
     }
 
@@ -266,14 +274,16 @@ void MainWindow::nextBlockClicked()
     ui->hashLineEdit3->setText(QString::fromStdString(blockRef.getBlockHash()));
 
     ui->numberLineEdit3->setText(QString::number(blockRef.getBlockNumber()));
-    if(g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton3->isEnabled())
+    if(g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton3->setDisabled(true);
+        ui->addTransactionPushButton3->setEnabled(true);
         ui->authorizeBlockPushButton3->setText("Authorized");
     }
-    else if(!g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton3->isEnabled())
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton3->setDisabled(false);
+        ui->addTransactionPushButton3->setEnabled(false);
         ui->authorizeBlockPushButton3->setText("Authorize");
     }
 }
@@ -297,14 +307,16 @@ void MainWindow::prevBlockClicked()
     ui->dateLineEdit3->setText(ui->dateLineEdit2->text());
     ui->hashLineEdit3->setText(ui->hashLineEdit2->text());
     ui->numberLineEdit3->setText(ui->numberLineEdit2->text());
-    if(g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton3->isEnabled())
+    if(g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton3->setDisabled(true);
+        ui->addTransactionPushButton3->setEnabled(true);
         ui->authorizeBlockPushButton3->setText("Authorized");
     }
-    else if(!g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton3->isEnabled())
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton3->setDisabled(false);
+        ui->addTransactionPushButton3->setEnabled(false);
         ui->authorizeBlockPushButton3->setText("Authorize");
     }
 
@@ -313,14 +325,16 @@ void MainWindow::prevBlockClicked()
     ui->dateLineEdit2->setText(ui->dateLineEdit1->text());
     ui->hashLineEdit2->setText(ui->hashLineEdit1->text());
     ui->numberLineEdit2->setText(ui->numberLineEdit1->text());
-    if(g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton2->isEnabled())
+    if(g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized())
     {
-        ui->authorizeBlockPushButton2->setDisabled(true);
+        ui->authorizeBlockPushButton2->setDisabled(true);        
+        ui->addTransactionPushButton2->setEnabled(true);
         ui->authorizeBlockPushButton2->setText("Authorized");
     }
-    else if(!g_blockchain.getBlockById(ui->numberLineEdit3->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton2->isEnabled())
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit2->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton2->setDisabled(false);
+        ui->addTransactionPushButton2->setEnabled(false);
         ui->authorizeBlockPushButton2->setText("Authorize");
     }
 
@@ -339,14 +353,16 @@ void MainWindow::prevBlockClicked()
 
     ui->numberLineEdit1->setText(QString::number(blockRef.getBlockNumber()));
 
-    if(g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized() && ui->authorizeBlockPushButton1->isEnabled())
+    if(g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton1->setDisabled(true);
+        ui->addTransactionPushButton1->setEnabled(true);
         ui->authorizeBlockPushButton1->setText("Authorized");
     }
-    else if(!g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized() && !ui->authorizeBlockPushButton1->isEnabled())
+    else if(!g_blockchain.getBlockById(ui->numberLineEdit1->text().toULongLong()).isAuthorized())
     {
         ui->authorizeBlockPushButton1->setDisabled(false);
+        ui->addTransactionPushButton1->setEnabled(false);
         ui->authorizeBlockPushButton1->setText("Authorize");
     }
 }
@@ -428,6 +444,7 @@ void MainWindow::activate1()
         g_blockchain.getBlockById(blockNumber).authorize();
         ui->authorizeBlockPushButton1->setDisabled(true);
         ui->authorizeBlockPushButton1->setText("Authorized");
+        ui->addTransactionPushButton1->setEnabled(true);
     }
     else
     {
@@ -460,6 +477,8 @@ void MainWindow::activate2()
         g_blockchain.getBlockById(blockNumber).authorize();
         ui->authorizeBlockPushButton2->setDisabled(true);
         ui->authorizeBlockPushButton2->setText("Authorized");
+        ui->addTransactionPushButton2->setEnabled(true);
+
     }
     else
     {
@@ -493,6 +512,8 @@ void MainWindow::activate3()
         g_blockchain.getBlockById(blockNumber).authorize();
         ui->authorizeBlockPushButton3->setDisabled(true);
         ui->authorizeBlockPushButton3->setText("Authorized");
+        ui->addTransactionPushButton3->setEnabled(true);
+
     }
     else
     {

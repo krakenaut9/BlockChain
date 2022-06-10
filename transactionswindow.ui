@@ -49,11 +49,21 @@
    <item>
     <widget class="QTreeWidget" name="treeWidget">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <column>
       <property name="text">
-       <string notr="true">1</string>
+       <string>Transaction №</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Property</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Value</string>
       </property>
      </column>
     </widget>
