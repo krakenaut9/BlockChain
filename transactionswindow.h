@@ -2,6 +2,7 @@
 #include <QDialog>
 #include <blockchain.h>
 #include <blockchainfile.h>
+#include <pch.h>
 
 namespace Ui {
 class TransactionsWindow;

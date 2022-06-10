@@ -51,6 +51,8 @@ public:
     public :
         Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::RSA::PublicKey& address);
         CryptoPP::RSA::PublicKey getAddress()const;
+        CryptoPP::RSA::PrivateKey getPrivateKey()const;
+        void setPrivateKey(const CryptoPP::RSA::PrivateKey&);
         std::string getBlockHash()const;
         std::string getPrevBlockHash()const;
         std::string getTime()const;
@@ -69,11 +71,12 @@ public:
 
 
     private:
-        QVector<Transaction> m_transactions;
-        std::string m_prevBlockHash;
         CryptoPP::RSA::PublicKey m_address;
+        CryptoPP::RSA::PrivateKey m_privateKey;
+        std::string m_prevBlockHash;
         std::string m_blockHash;
         std::string m_time;
+        QVector<Transaction> m_transactions;
         size_t m_blockNumber;
         bool m_authorized;
     };
@@ -82,8 +85,8 @@ public:
     Block& getBlockById(const size_t blockId);
     void addBlock(const Block& newBlock);
     void addBlock(Block&& newBlock);
-    const QVector<Block>& getBlockChain()const;
-    const Block& getLastBlock()const;
+    QVector<Block>& getBlockChain();
+    Block& getLastBlock();
     CryptoPP::RSA::PublicKey getLastBlockHash()const;
 
 private:

@@ -28,7 +28,11 @@ TransactionsWindow::TransactionsWindow(Blockchain::Block* pBlock, QWidget *paren
 
         auto signatureItem = new QTreeWidgetItem(transactionItem);
         signatureItem->setText(1, Blockchain::Transaction::Properties::digitalSignature.c_str());
-        signatureItem->setText(2, QString::fromStdString(transaction.getSignature()));
+        std::ostringstream ret;
+        auto signature = transaction.getSignature();
+        for (std::string::size_type i = 0; i < signature.length(); ++i)
+            ret << std::hex << std::setfill('0') << std::setw(2) << (int)signature[i];
+        signatureItem->setText(2, ret.str().c_str());
         transactionItem->addChild(signatureItem);
 
         auto timeItem = new QTreeWidgetItem(transactionItem);

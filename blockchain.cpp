@@ -28,7 +28,7 @@ void Blockchain::addBlock(Block&& newBlock)
     m_blocks.push_back(newBlock);
 }
 
-const QVector<Blockchain::Block>& Blockchain::getBlockChain()const
+QVector<Blockchain::Block>& Blockchain::getBlockChain()
 {
     return m_blocks;
 }
@@ -38,7 +38,7 @@ Blockchain::Block& Blockchain::getBlockById(const size_t blockId)
     return m_blocks[blockId];
 }
 
-const Blockchain::Block& Blockchain::getLastBlock()const
+Blockchain::Block& Blockchain::getLastBlock()
 {
     if(m_blocks.isEmpty())
     {
@@ -53,7 +53,7 @@ CryptoPP::RSA::PublicKey Blockchain::getLastBlockHash()const
 }
 
 Blockchain::Block::Block(const size_t blockNumber, const std::string& prevBlockHash, const CryptoPP::RSA::PublicKey& address) :
-    m_prevBlockHash(prevBlockHash), m_address(address), m_time(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss").toStdString()), m_blockNumber(blockNumber), m_authorized(false)
+     m_address(address), m_prevBlockHash(prevBlockHash), m_time(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss").toStdString()), m_blockNumber(blockNumber), m_authorized(false)
 {
     QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
     hasher->addData(m_prevBlockHash.c_str(), m_prevBlockHash.length());
@@ -63,6 +63,16 @@ Blockchain::Block::Block(const size_t blockNumber, const std::string& prevBlockH
 CryptoPP::RSA::PublicKey Blockchain::Block::getAddress()const
 {
     return m_address;
+}
+
+CryptoPP::RSA::PrivateKey Blockchain::Block::getPrivateKey()const
+{
+    return m_privateKey;
+}
+
+void Blockchain::Block::setPrivateKey(const CryptoPP::RSA::PrivateKey& privateKey)
+{
+    m_privateKey = privateKey;
 }
 
 std::string Blockchain::Block::getBlockHash()const
@@ -102,43 +112,26 @@ size_t Blockchain::Block::getBlockNumber()const
 
 bool Blockchain::Block::addTransaction(const Transaction& transaction)
 {
-    if(!m_authorized)
-    {
+    m_transactions.push_back(transaction);
+    m_transactions.last().setNumber(m_transactions.size() - 1);
+    QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
+    hasher->addData(m_blockHash.c_str(), m_blockHash.length());
+    hasher->addData(transaction.getInformation().c_str(), transaction.getInformation().length());
 
-        m_transactions.push_back(transaction);
-        m_transactions.last().setNumber(m_transactions.size() - 1);
-        QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
-        hasher->addData(m_blockHash.c_str(), m_blockHash.length());
-        hasher->addData(transaction.getInformation().c_str(), transaction.getInformation().length());
-
-        m_blockHash = hasher->result().toHex().toStdString();
-        return true;
-    }
-    else
-    {
-        qDebug() << m_blockNumber << " block is full. Can't add a new transaction";
-        return false;
-    }
+    m_blockHash = hasher->result().toHex().toStdString();
+    return true;
 }
 
 bool Blockchain::Block::addTransaction(Transaction&& transaction)
 {
-    if(!m_authorized)
-    {
-        m_transactions.push_back(transaction);
-        m_transactions.last().setNumber(m_transactions.size() - 1);
-        QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
-        hasher->addData(m_blockHash.c_str(), m_blockHash.length());
-        hasher->addData(transaction.getInformation().c_str(), transaction.getInformation().length());
+    m_transactions.push_back(transaction);
+    m_transactions.last().setNumber(m_transactions.size() - 1);
+    QCryptographicHash *hasher = new QCryptographicHash(QCryptographicHash::Sha512);
+    hasher->addData(m_blockHash.c_str(), m_blockHash.length());
+    hasher->addData(transaction.getInformation().c_str(), transaction.getInformation().length());
 
-        m_blockHash = hasher->result().toHex().toStdString();
-        return true;
-    }
-    else
-    {
-        qDebug() << m_blockNumber << " block is full. Can't add a new transaction";
-        return false;
-    }
+    m_blockHash = hasher->result().toHex().toStdString();
+    return true;
 }
 
 void Blockchain::Block::calculateBlockHash()

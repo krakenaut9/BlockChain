@@ -5,6 +5,7 @@
 #include <blockchain.h>
 #include <blockchainfile.h>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <transactionswindow.h>
 
 QT_BEGIN_NAMESPACE
@@ -29,6 +30,9 @@ public slots:
     void showTransactions1();
     void showTransactions2();
     void showTransactions3();
+    void addTransaction1();
+    void addTransaction2();
+    void addTransaction3();
 private:
     Ui::MainWindow *ui;
 };
