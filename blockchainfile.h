@@ -11,6 +11,8 @@ namespace BlockchainFile
     constexpr char BLOCKCHAIN_FILE_NAME[] = "Blockchain.json";
     bool AddBlock(const Blockchain::Block& newBlock);
 
+    bool AddTransaction(const size_t blockNumber, const Blockchain::Transaction& transaction);
+
     void LoadPublicKey(const std::string& filename, CryptoPP::PublicKey& key);
 
     void LoadPrivateKey(const std::string& filename, CryptoPP::PrivateKey& key);

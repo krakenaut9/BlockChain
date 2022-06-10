@@ -72,6 +72,45 @@ bool BlockchainFile::AddBlock(const Blockchain::Block& newBlock)
     return true;
 }
 
+bool BlockchainFile::AddTransaction(const size_t blockNumber, const Blockchain::Transaction& transaction)
+{
+    qDebug() << "Save sransaction";
+    QFile file(BLOCKCHAIN_FILE_NAME);
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "File open failed. Can not add a new block";
+        return false;
+    }
+    QJsonParseError JsonParseError;
+    QJsonDocument JsonDocument = QJsonDocument::fromJson(file.readAll(), &JsonParseError);
+    file.close();
+    QJsonObject RootObject = JsonDocument.object();
+
+    auto blockIt = RootObject.find(QString::number(blockNumber));
+
+    QJsonObject transactionObject;
+    transactionObject.insert(Blockchain::Transaction::Properties::information.c_str(),
+                             QString::fromStdString(transaction.getInformation()));
+
+    transactionObject.insert(Blockchain::Transaction::Properties::digitalSignature.c_str(),
+                             QString::fromStdString(transaction.getSignature()));
+
+    transactionObject.insert(Blockchain::Transaction::Properties::time.c_str(),
+                             QString::fromStdString(transaction.getTime()));
+
+
+    QJsonValueRef valueRef = blockIt.value();
+    QJsonObject blockObject = valueRef.toObject();
+    QJsonObject transactionsObject = blockObject[Blockchain::Block::Properties::transactions.c_str()].toObject();
+    transactionsObject.insert(QString::number(transaction.getNumber()), transactionObject);
+    valueRef = transactionsObject;
+    JsonDocument.setObject(RootObject); // set to json document
+    file.open(QFile::WriteOnly | QFile::Text | QFile::Truncate);
+    file.write(JsonDocument.toJson());
+    file.close();
+    return true;
+}
+
 
 void BlockchainFile::Load(const std::string& filename, CryptoPP::BufferedTransformation& bt)
 {

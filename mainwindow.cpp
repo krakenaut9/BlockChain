@@ -191,30 +191,36 @@ void MainWindow::newBlockClicked()
             if(ui->numberLineEdit1->text().isEmpty())
             {
                 ui->addressLineEdit1->setText(QString::fromStdString(hexAddress));
+                ui->addressLineEdit1->setCursorPosition(0);
 
                 ui->dateLineEdit1->setText(QString::fromStdString(newBlock.getTime()));
 
                 ui->hashLineEdit1->setText(QString::fromStdString(newBlock.getBlockHash()));
+                ui->hashLineEdit1->setCursorPosition(0);
 
                 ui->numberLineEdit1->setText(QString::number(newBlock.getBlockNumber()));
                 return;
             }
 
             ui->addressLineEdit2->setText(QString::fromStdString(hexAddress));
+            ui->addressLineEdit2->setCursorPosition(0);
 
             ui->dateLineEdit2->setText(QString::fromStdString(newBlock.getTime()));
 
             ui->hashLineEdit2->setText(QString::fromStdString(newBlock.getBlockHash()));
+            ui->hashLineEdit2->setCursorPosition(0);
 
             ui->numberLineEdit2->setText(QString::number(newBlock.getBlockNumber()));
             return;
         }
 
         ui->addressLineEdit3->setText(QString::fromStdString(hexAddress));
+        ui->addressLineEdit3->setCursorPosition(0);
 
         ui->dateLineEdit3->setText(QString::fromStdString(newBlock.getTime()));
 
         ui->hashLineEdit3->setText(QString::fromStdString(newBlock.getBlockHash()));
+        ui->hashLineEdit3->setCursorPosition(0);
 
         ui->numberLineEdit3->setText(QString::number(newBlock.getBlockNumber()));
         return;
@@ -462,6 +468,12 @@ void MainWindow::activate1()
 
     auto privateKeyPath = QFileDialog::getOpenFileName(this, "Open private key", QDir::currentPath());
 
+    if(privateKeyPath.isEmpty())
+    {
+        qDebug() << "Empty private key path";
+        return;
+    }
+
     CryptoPP::RSA::PrivateKey privateKey;
     BlockchainFile::LoadHexPrivateKey(privateKeyPath.toStdString(), privateKey);
 
@@ -499,6 +511,12 @@ void MainWindow::activate2()
 
     auto privateKeyPath = QFileDialog::getOpenFileName(this, "Open private key", QDir::currentPath());
 
+    if(privateKeyPath.isEmpty())
+    {
+        qDebug() << "Empty private key path";
+        return;
+    }
+
     CryptoPP::RSA::PrivateKey privateKey;
     BlockchainFile::LoadHexPrivateKey(privateKeyPath.toStdString(), privateKey);
 
@@ -535,6 +553,12 @@ void MainWindow::activate3()
     qDebug() << "Try to activate 3";
 
     auto privateKeyPath = QFileDialog::getOpenFileName(this, "Open private key", QDir::currentPath());
+
+    if(privateKeyPath.isEmpty())
+    {
+        qDebug() << "Empty private key path";
+        return;
+    }
 
     CryptoPP::RSA::PrivateKey privateKey;
     BlockchainFile::LoadHexPrivateKey(privateKeyPath.toStdString(), privateKey);
@@ -606,6 +630,9 @@ void MainWindow::addTransaction1()
         Blockchain::Transaction newTransaction(information.toStdString(), g_blockchain.getBlockChain()[blockNumber].getPrivateKey());
         newTransaction.setNumber(g_blockchain.getBlockChain()[blockNumber].getTransactionsCount());
         g_blockchain.getBlockChain()[blockNumber].addTransaction(newTransaction);
+        ui->hashLineEdit1->setText(QString::fromStdString(g_blockchain.getBlockChain()[blockNumber].getBlockHash()));
+        ui->hashLineEdit1->setCursorPosition(0);
+        BlockchainFile::AddTransaction(blockNumber, newTransaction);
     }
 }
 
@@ -630,6 +657,9 @@ void MainWindow::addTransaction2()
         Blockchain::Transaction newTransaction(information.toStdString(), g_blockchain.getBlockChain()[blockNumber].getPrivateKey());
         newTransaction.setNumber(g_blockchain.getBlockChain()[blockNumber].getTransactionsCount());
         g_blockchain.getBlockChain()[blockNumber].addTransaction(newTransaction);
+        ui->hashLineEdit2->setText(QString::fromStdString(g_blockchain.getBlockChain()[blockNumber].getBlockHash()));
+        ui->hashLineEdit2->setCursorPosition(0);
+        BlockchainFile::AddTransaction(blockNumber, newTransaction);
     }
 }
 
@@ -654,5 +684,8 @@ void MainWindow::addTransaction3()
         Blockchain::Transaction newTransaction(information.toStdString(), g_blockchain.getBlockChain()[blockNumber].getPrivateKey());
         newTransaction.setNumber(g_blockchain.getBlockChain()[blockNumber].getTransactionsCount());
         g_blockchain.getBlockChain()[blockNumber].addTransaction(newTransaction);
+        ui->hashLineEdit3->setText(QString::fromStdString(g_blockchain.getBlockChain()[blockNumber].getBlockHash()));
+        ui->hashLineEdit3->setCursorPosition(0);
+        BlockchainFile::AddTransaction(blockNumber, newTransaction);
     }
 }
